@@ -12,5 +12,5 @@ func main(){
 	fmt.Println("Panjang Katalog Buah\t\t: ", len(toko_ariel))
 	fmt.Println("Kapasitas Katalog Buah\t\t:", cap(buah_toko_ariel))
 	fmt.Println("Panjang Katalog Buah Bulanan\t:", len(katalog_bulanan))
-	fmt.Println("Kapasistas Katalog Buah Bulanan\t:", cap(buah_bulan_ini))
+	fmt.Println("Kapasistas Katalog Buah Bulanan\t:", cap(katalog_bulanan))
 }
