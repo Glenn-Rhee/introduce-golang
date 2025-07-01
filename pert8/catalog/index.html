@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventRealm - Platform Manajemen Event</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script type="module" src="/lit-core.min.js"></script>
+    <script type="module" src="/event-catalog.js"></script>
+    <script type="module" src="/event-form.js"></script>
+    <script type="module" src="/app-router.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+        }
+        
+        /* Simple loading indicator */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <app-router></app-router>
+    
+    <!-- Loading indicator -->
+    <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <script>
+        // Simple loading indicator management
+        window.addEventListener('load', () => {
+            const loading = document.getElementById('loading');
+            
+            // Show loading when navigation starts
+            window.addEventListener('popstate', () => {
+                loading.classList.add('active');
+                setTimeout(() => {
+                    loading.classList.remove('active');
+                }, 500);
+            });
+            
+            // Show loading when clicking links
+            document.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                    if (e.target.getAttribute('href') || e.target.getAttribute('data-href')) {
+                        loading.classList.add('active');
+                        setTimeout(() => {
+                            loading.classList.remove('active');
+                        }, 500);
+                    }
+                }
+            });
+            
+            // Hide loading initially
+            loading.classList.remove('active');
+        });
+    </script>
+</body>
+</html>

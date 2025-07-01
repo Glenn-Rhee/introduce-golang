@@ -1,0 +1,97 @@
+-- No 1
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"pert7/backend/handlers"
+	"pert7/backend/models"
+)
+
+-- No 2
+const PORT = 20029
+
+-- No 3
+type Note struct {
+	ID      int    `json:"id"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+-- No 4
+var Notes []Note
+
+const filePath = "notes.json"
+
+func LoadNotes() {
+	file, err := os.ReadFile(filePath)
+	if err == nil {
+		json.Unmarshal(file, &Notes)
+	} else {
+		Notes = []Note{}
+	}
+}
+
+func SaveNotes() {
+	file, _ := json.MarshalIndent(Notes, "", "  ")
+	os.WriteFile(filePath, file, 0644)
+}
+
+
+-- No 5
+func GetNotes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(models.Notes)
+}
+
+-- No 6
+func AddNote(w http.ResponseWriter, r *http.Request) {
+	var newNote models.Note
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&newNote); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	newNote.ID = len(models.Notes) + 1
+
+	models.Notes = append(models.Notes, newNote)
+	models.SaveNotes()
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newNote)
+}
+
+-- No 7
+func DeleteNote(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	for i, note := range models.Notes {
+		if note.ID == id {
+			models.Notes = append(models.Notes[:i], models.Notes[i+1:]...)
+			models.SaveNotes()
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Note deleted"))
+			return
+		}
+	}
+
+	http.Error(w, "Note not found", http.StatusNotFound)
+}
+
+-- No 8
+func main() {
+	models.LoadNotes()
+
+	http.Handle("/", http.FileServer(http.Dir("./frontend")))
+	http.HandleFunc("/notes", handlers.NotesHandler)
+	http.HandleFunc("/delete", handlers.DeleteHandler)
+
+	log.Printf("Server running on http:localhost:%d/...", PORT)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", PORT), nil)
+	if err != nil {
+		log.Fatalf("Error starting the server on port %d: %v", PORT, err)
+	}
+}
